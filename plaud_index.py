@@ -22,7 +22,10 @@ MAX_RETRIES = 6
 
 def duration_to_seconds(text):
     """'1h14m' -> 4440, '7m27s' -> 447, '21s' -> 21"""
-    hours, minutes, seconds = (int(x) if x else 0 for x in DURATION.fullmatch(text.strip()).groups())
+    m = DURATION.fullmatch(text.strip())
+    if m is None:
+        raise ValueError(f"Ungültige Dauer: {text!r}")
+    hours, minutes, seconds = (int(x) if x else 0 for x in m.groups())
     return hours * 3600 + minutes * 60 + seconds
 
 
@@ -73,12 +76,18 @@ def main():
                 failed.append(file_id)
                 print(f"[{n}/{len(todo)}] FEHLER {file_id}")
                 continue
+            try:
+                dauer_sek = duration_to_seconds(d["duration"])
+            except ValueError as e:
+                failed.append(file_id)
+                print(f"[{n}/{len(todo)}] FEHLER {file_id}: {e}")
+                continue
             index[file_id] = {
                 "datei": transcripts[file_id],
                 "id": file_id,
                 "titel": d["name"],
                 "start": d["start_at"],
-                "dauer_sek": duration_to_seconds(d["duration"]),
+                "dauer_sek": dauer_sek,
             }
             print(f"[{n}/{len(todo)}] ok {file_id}")
             time.sleep(0.3)

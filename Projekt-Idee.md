@@ -71,6 +71,14 @@ dann müssen wir die sauberen lines speichern
 - **Index:** optional `python3 plaud_index.py` → `plaud_index.csv`
 - **Titel-Filter:** über CLI `--exclude-titel` (siehe Analyse-CLI)
 
+## Plattformen (Mac / Windows / Linux)
+
+- **Analyse-CLI** (`run_analyse_cli.py`, Metriken, Plots): plattformneutral — Python 3 + venv mit `matplotlib` (Backend `Agg`, kein Display nötig). Pfade über `pathlib`.
+- **Interaktives Menü:** Terminal/PowerShell mit TTY; ohne TTY und ohne Flags → Exit 2 (hängt nicht).
+- **Mac / Linux:** Analyse läuft so; zusätzlich `plaud` im PATH für Download/Index.
+- **Windows:** Analyse/Plots in PowerShell/CMD mit Python+venv ok; Plaud-Anbindung nur, wenn `plaud` dort installiert/im PATH ist (sonst WSL oder Hersteller-Support).
+- **Kurz:** Analyse-Code = OS-unabhängig; Download/Index hängen am `plaud`-Binary, nicht am Analyse-CLI.
+
 ## Lauf: Slice Hypothese 1 — Anfangs- gegen Abschluss-Sprache
 
 - **Marker exakt + Wortgrenzen + case-insensitive**: Anfang = `ich will`, `man könnte`, `neue Idee`, `ich baue`; Abschluss = `fertig`, `geschafft`, `läuft`, `abgeschlossen`.

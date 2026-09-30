@@ -50,10 +50,19 @@ def interactive_menu():
             if name and name in metric_registry():
                 ys.append(name)
     elif choice == "1":
-        y_names = ", ".join(sorted(metric_registry()))
+        reg = metric_registry()
+        y_names = ", ".join(sorted(reg))
         print(f"Metriken: {y_names}")
         raw = input("Metriken (kommagetrennt): ").strip()
-        metrics = [p.strip() for p in raw.split(",") if p.strip()]
+        metrics = []
+        for p in raw.split(","):
+            name = p.strip()
+            if not name:
+                continue
+            if name not in reg:
+                print(f"Unbekannte Metrik (ignoriert): {name!r}")
+                continue
+            metrics.append(name)
     else:
         print("Unbekannte Auswahl.")
         return argparse.Namespace(

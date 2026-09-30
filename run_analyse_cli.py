@@ -53,6 +53,10 @@ def run_analyse_cli(argv=None):
 
     if ns.metrics:
         reg = metric_registry()
+        unknown = [c for c in ns.metrics if c not in reg]
+        if unknown:
+            print(f"Unbekannte Metrik(en): {', '.join(unknown)}")
+            return 1
         cols = ns.metrics
         header = ["datei"] + cols
         print("\t".join(header))
@@ -75,7 +79,7 @@ def run_analyse_cli(argv=None):
             if plot_xy(records, ns.x, y_name, plots_dir=PLOTS_DIR):
                 ok += 1
         print(f"{ok}/{len(ns.ys)} Plot(s) in {PLOTS_DIR}/")
-        return 0
+        return 0 if ok == len(ns.ys) else 1
 
     if ns.x and not ns.ys:
         print("Für einen Plot mindestens ein --y angeben.")

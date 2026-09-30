@@ -30,22 +30,20 @@ def plot_xy(records, x_name, y_name, plots_dir=None, title=None, out_name=None):
         yv = r.get(y_key)
         if xv is None or yv is None:
             continue
-        if x_spec["needs_index"] and xv is None:
-            continue
         if y_spec["needs_dauer"] and r.get("dauer_sek") is None:
             continue
         rows.append(r)
 
     if not rows:
-        if x_spec["needs_index"]:
-            print(
-                f"Keine Datenpunkte für {x_name} vs. {y_name}: "
-                "plaud_index.csv mit Dauer nötig (python3 plaud_index.py)."
-            )
-        elif y_spec["needs_dauer"]:
+        if y_spec["needs_dauer"] and all(r.get("dauer_sek") is None for r in records):
             print(
                 f"Keine Datenpunkte für {x_name} vs. {y_name}: "
                 "Metrik braucht Aufnahmedauer aus dem Index."
+            )
+        elif x_spec["needs_index"] and all(r.get(x_key) is None for r in records):
+            print(
+                f"Keine Datenpunkte für {x_name} vs. {y_name}: "
+                "plaud_index.csv mit Dauer nötig (python3 plaud_index.py)."
             )
         else:
             print(f"Keine Datenpunkte für {x_name} vs. {y_name}.")

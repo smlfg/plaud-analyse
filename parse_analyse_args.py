@@ -60,6 +60,7 @@ def parse_analyse_args(argv=None):
         if bad:
             p.error(f"Unbekannte Metrik(en): {', '.join(bad)}")
     ns.metrics = metrics
+    ns.exclude_titel = [k.strip() for k in ns.exclude_titel if k and k.strip()]
     return ns
 
 

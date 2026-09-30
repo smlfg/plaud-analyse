@@ -1,0 +1,17 @@
+# Importierte Plaud-Daten (lokal, nicht im Repo)
+PlaudImport/
+PlaudImportClean/
+
+# Generierte Outputs
+plots/
+plaud_index.csv
+plaud_fehlgeschlagen.txt
+graphify-out/
+
+# Python / OS / Editor
+__pycache__/
+*.py[cod]
+.DS_Store
+.cursor/
+.venv/
+venv/

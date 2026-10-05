@@ -1,7 +1,12 @@
 def axis_registry():
-    """Achsen-Name → {key, label, needs_index} (nur zeit / dauer / woerter)."""
+    """Achsen-Name → {key, label, needs_index} (zeit, uhrzeit, dauer, woerter)."""
     return {
-        "zeit": {"key": "start", "label": "Aufnahmezeit", "needs_index": False},
+        "zeit": {"key": "start", "label": "Aufnahmedatum", "needs_index": False},
+        "uhrzeit": {
+            "key": "uhrzeit",
+            "label": "Uhrzeit (Stunden 0–24)",
+            "needs_index": True,
+        },
         "dauer": {
             "key": "dauer_sek",
             "label": "Aufnahmedauer (Sekunden)",

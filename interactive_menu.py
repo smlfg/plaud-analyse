@@ -1,7 +1,89 @@
 import argparse
 
-from axis_registry import axis_registry
+from dimension_names import dimension_names
 from metric_registry import metric_registry
+
+
+def _empty_namespace():
+    return argparse.Namespace(
+        metrics=None,
+        x=None,
+        ys=[],
+        all=False,
+        list_only=False,
+        terminal=False,
+        exclude_titel=[],
+        quit=False,
+    )
+
+
+def _quit_namespace():
+    return argparse.Namespace(
+        metrics=None,
+        x=None,
+        ys=[],
+        all=False,
+        list_only=False,
+        terminal=False,
+        exclude_titel=[],
+        quit=True,
+    )
+
+
+def _xy_plot_interactive():
+    """X/Y per questionary wählen; bei Fehler einfacher input()-Fallback."""
+    dims = dimension_names()
+    x = None
+    ys = []
+    try:
+        import questionary
+
+        x = questionary.autocomplete(
+            "X-Dimension:",
+            choices=dims,
+            validate=lambda t: t in dims or "Unbekannte Dimension",
+        ).ask()
+        if x is None:
+            return _empty_namespace()
+        y_choices = [d for d in dims if d != x]
+        ys = questionary.checkbox(
+            "Y-Dimension(en) (mind. eine):",
+            choices=y_choices,
+            validate=lambda sel: len(sel) > 0 or "Mindestens eine Y-Dimension wählen",
+        ).ask()
+        if not ys:
+            return _empty_namespace()
+    except Exception:
+        print("Hinweis: questionary nicht verfügbar — Eingabe per Tastatur.")
+        print(f"Dimensionen: {', '.join(dims)}")
+        x = input("X-Dimension: ").strip()
+        if x not in dims:
+            print(f"Unbekannte Dimension: {x!r}")
+            return _empty_namespace()
+        y_raw = input("Y-Dimension(en), kommagetrennt: ").strip()
+        for part in y_raw.split(","):
+            name = part.strip()
+            if name and name in dims and name != x:
+                ys.append(name)
+        if not ys:
+            print("Keine gültige Y-Dimension gewählt.")
+            return _empty_namespace()
+
+    terminal = input("Im Terminal anzeigen statt PNG? (j/N): ").strip().lower() in (
+        "j",
+        "ja",
+        "y",
+    )
+    return argparse.Namespace(
+        metrics=None,
+        x=x,
+        ys=ys,
+        all=False,
+        list_only=False,
+        terminal=terminal,
+        exclude_titel=[],
+        quit=False,
+    )
 
 
 def interactive_menu():
@@ -11,44 +93,25 @@ def interactive_menu():
     print("  2) XY-Plot")
     print("  3) Alles (--all)")
     print("  4) Achsen/Metriken listen")
-    choice = input("Auswahl [1-4]: ").strip()
+    print("  5) Beenden")
+    choice = input("Auswahl [1-5, q=Beenden]: ").strip()
+    choice_lc = choice.lower()
+    if choice == "5" or choice_lc in ("q", "quit"):
+        return _quit_namespace()
 
     metrics = None
     x = None
     ys = []
     all_flag = False
     list_only = False
-    exclude_titel = []
-
-    ex = input("Titel ausschließen (Komma-getrennt, leer=keiner): ").strip()
-    if ex:
-        exclude_titel = [p.strip() for p in ex.split(",") if p.strip()]
+    terminal = False
 
     if choice == "4":
         list_only = True
     elif choice == "3":
         all_flag = True
     elif choice == "2":
-        ax_names = ", ".join(sorted(axis_registry()))
-        y_names = ", ".join(sorted(metric_registry()))
-        print(f"Achsen: {ax_names}")
-        x = input("X-Achse: ").strip()
-        if x not in axis_registry():
-            print(f"Unbekannte Achse: {x!r}")
-            return argparse.Namespace(
-                metrics=None,
-                x=None,
-                ys=[],
-                all=False,
-                list_only=False,
-                exclude_titel=exclude_titel,
-            )
-        print(f"Metriken: {y_names}")
-        y_raw = input("Y-Metrik(en), kommagetrennt: ").strip()
-        for part in y_raw.split(","):
-            name = part.strip()
-            if name and name in metric_registry():
-                ys.append(name)
+        return _xy_plot_interactive()
     elif choice == "1":
         reg = metric_registry()
         y_names = ", ".join(sorted(reg))
@@ -65,14 +128,7 @@ def interactive_menu():
             metrics.append(name)
     else:
         print("Unbekannte Auswahl.")
-        return argparse.Namespace(
-            metrics=None,
-            x=None,
-            ys=[],
-            all=False,
-            list_only=False,
-            exclude_titel=exclude_titel,
-        )
+        return _empty_namespace()
 
     return argparse.Namespace(
         metrics=metrics if metrics else None,
@@ -80,7 +136,9 @@ def interactive_menu():
         ys=ys,
         all=all_flag,
         list_only=list_only,
-        exclude_titel=exclude_titel,
+        terminal=terminal,
+        exclude_titel=[],
+        quit=False,
     )
 
 

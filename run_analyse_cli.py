@@ -6,37 +6,24 @@ from interactive_menu import interactive_menu
 from metric_registry import metric_registry
 from axis_registry import axis_registry
 from parse_analyse_args import parse_analyse_args
+from plot_terminal import plot_terminal
 from plot_xy import plot_xy
 from run_analyse import run_analyse
 from sammle_records import sammle_records
 
 
-def run_analyse_cli(argv=None):
-    """Einstieg: interaktiv (TTY), --list, --metric, --x/--y, oder --all."""
-    if argv is None and len(sys.argv) <= 1:
-        if not sys.stdin.isatty():
-            print(
-                "Keine Argumente und keine interaktive Eingabe (stdin ist keine TTY).\n"
-                "Beispiele:\n"
-                "  python run_analyse_cli.py --list\n"
-                "  python run_analyse_cli.py --x zeit --y vielfalt\n"
-                "  python run_analyse_cli.py --all",
-                file=sys.stderr,
-            )
-            sys.exit(2)
-        ns = interactive_menu()
-    else:
-        ns = parse_analyse_args(argv)
-
+def _dispatch(ns):
+    """Ausführung für einen geparsten/interaktiven Namespace; Exit-Code für diese Aktion."""
     if ns.list_only:
-        print("Achsen (--x):")
+        print("Achsen:")
         for name, spec in sorted(axis_registry().items()):
             idx = " (Index/Dauer nötig)" if spec["needs_index"] else ""
             print(f"  {name}: {spec['label']}{idx}")
-        print("\nMetriken (--y / --metric):")
+        print("\nMetriken (--metric / auch als --x/--y):")
         for name, spec in sorted(metric_registry().items()):
             dauer = " (Dauer nötig)" if spec["needs_dauer"] else ""
             print(f"  {name}: {spec['ylabel']}{dauer}")
+        print("\nHinweis: --x und --y dürfen aus beiden Pools wählen (freie Dimensionen).")
         return 0
 
     if ns.all:
@@ -73,6 +60,8 @@ def run_analyse_cli(argv=None):
             return 0
 
     if ns.x and ns.ys:
+        if ns.terminal:
+            return 0 if plot_terminal(records, ns.x, ns.ys[0]) else 1
         PLOTS_DIR.mkdir(exist_ok=True)
         ok = 0
         for y_name in ns.ys:
@@ -90,6 +79,31 @@ def run_analyse_cli(argv=None):
         return 1
 
     return 0
+
+
+def run_analyse_cli(argv=None):
+    """Einstieg: interaktiv (TTY), --list, --metric, --x/--y, oder --all."""
+    interactive = argv is None and len(sys.argv) <= 1
+    if interactive:
+        if not sys.stdin.isatty():
+            print(
+                "Keine Argumente und keine interaktive Eingabe (stdin ist keine TTY).\n"
+                "Beispiele:\n"
+                "  python run_analyse_cli.py --list\n"
+                "  python run_analyse_cli.py --x zeit --y vielfalt\n"
+                "  python run_analyse_cli.py --all",
+                file=sys.stderr,
+            )
+            sys.exit(2)
+        while True:
+            ns = interactive_menu()
+            if getattr(ns, "quit", False):
+                return 0
+            _dispatch(ns)
+            print()
+
+    ns = parse_analyse_args(argv)
+    return _dispatch(ns)
 
 
 if __name__ == "__main__":

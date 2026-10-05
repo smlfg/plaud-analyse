@@ -6,6 +6,7 @@ from load_index_by_datei import load_index_by_datei
 from metriken import metriken
 from parse_start import parse_start
 from pipeline import pipeline
+from uhrzeit_from_start import uhrzeit_from_start
 from save_clean_text import save_clean_text
 from woerter_pro_minute import woerter_pro_minute
 
@@ -24,8 +25,10 @@ def sammle_records(import_dir=None, index_file=None, clean_dir=None):
         m = metriken(text)
         row = index.get(datei, {})
         start_dt = parse_start(row.get("start", "")) if row else None
+        from_index = start_dt is not None
         if start_dt is None:
             start_dt = date_from_datei(datei)
+        uhrzeit = uhrzeit_from_start(start_dt) if from_index else None
         dauer = None
         if row.get("dauer_sek"):
             try:
@@ -36,6 +39,7 @@ def sammle_records(import_dir=None, index_file=None, clean_dir=None):
             {
                 "datei": datei,
                 "start": start_dt,
+                "uhrzeit": uhrzeit,
                 "dauer_sek": dauer,
                 "titel": row.get("titel", ""),
                 "text": text,

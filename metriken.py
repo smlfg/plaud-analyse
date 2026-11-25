@@ -1,6 +1,7 @@
 from avg_satzlaenge import avg_satzlaenge
 from avg_wortlaenge import avg_wortlaenge
 from count_anfang_abschluss import count_anfang_abschluss
+from fuellwoerter_count import fuellwoerter_count
 from fuellwort_rate import fuellwort_rate
 from hapax import hapax
 from inhalt_woerter_anteil import inhalt_woerter_anteil
@@ -23,6 +24,9 @@ def metriken(text):
         "inhalt_anteil": inhalt_woerter_anteil(woerter),
         "hapax": hapax(text),
         "fuellwort_rate": fuellwort_rate(text),
+        "fuellwoerter_abs": fuellwoerter_count(text),
+        "aehm_abs": fuellwoerter_count(text, wort="ähm"),
+        "dann_abs": fuellwoerter_count(text, wort="dann"),
         "unique_count": unique_count(text),
         "wiederholungs_rate": wiederholungs_rate(text),
         "max_wort_anteil": max_wort_anteil(text),

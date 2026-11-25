@@ -14,8 +14,10 @@ from plot_dauer_wortlaenge import plot_dauer_wortlaenge
 from plot_dauer_wpm import plot_dauer_wpm
 from plot_scatter_woerter_hapax import plot_scatter_woerter_hapax
 from plot_scatter_woerter_vielfalt import plot_scatter_woerter_vielfalt
+from plot_top_fuellwoerter import plot_top_fuellwoerter
 from plot_top_inhalt_woerter import plot_top_inhalt_woerter
 from plot_zeit_anfang_abschluss import plot_zeit_anfang_abschluss
+from plot_zeit_fuellwoerter_abs import plot_zeit_fuellwoerter_abs
 from plot_zeit_fuellwort_rate import plot_zeit_fuellwort_rate
 from plot_zeit_hapax import plot_zeit_hapax
 from plot_zeit_inhalt import plot_zeit_inhalt
@@ -66,6 +68,9 @@ def run_analyse():
     plot_zeit_wiederholung(records, PLOTS_DIR)
     plot_scatter_woerter_hapax(records, PLOTS_DIR)
     plot_top_inhalt_woerter(records, PLOTS_DIR)
+    plot_top_fuellwoerter(records, PLOTS_DIR)
+    plot_zeit_fuellwoerter_abs(records, "ähm", PLOTS_DIR)
+    plot_zeit_fuellwoerter_abs(records, "dann", PLOTS_DIR)
     plot_zeit_wpm(records, PLOTS_DIR)
     plot_dauer_vielfalt(records, PLOTS_DIR)
     plot_dauer_wortlaenge(records, PLOTS_DIR)
